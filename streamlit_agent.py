@@ -1,3 +1,4 @@
+import io
 import streamlit as st
 import requests
 from langchain.embeddings import OpenAIEmbeddings
@@ -127,7 +128,13 @@ def plot_agent_graph():
     nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=14, font_weight="bold", font_color="#222222", ax=ax)
     ax.set_axis_off()
     plt.tight_layout()
-    st.pyplot(fig)
+    # st.pyplot(fig)
+    # st.pyplot(fig)
+    # Save figure to a buffer
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png")
+    buf.seek(0)
+    st.image(buf, width=500)
 
 st.header("Agent Workflow Graph")
 plot_agent_graph()
