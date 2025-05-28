@@ -1,4 +1,3 @@
-io
 streamlit
 requests
 langchain_openai
@@ -9,5 +8,4 @@ networkx
 matplotlib
 pymupdf4llm
 tempfile
-os
 numpy
