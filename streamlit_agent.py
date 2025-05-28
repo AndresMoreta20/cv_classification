@@ -365,19 +365,20 @@ if go and anthropic_key:
         )
         
         result_state = graph.invoke(initial_state)
-        jobs = result_state["filtered_jobs"]
+        initial_jobs = result_state["jobs"]  # Initial 10 jobs
+        filtered_jobs = result_state["filtered_jobs"]  # Final 3 filtered jobs
         
-        if len(jobs) == 0:
+        if len(filtered_jobs) == 0:
             st.warning("No matching jobs found. Try another job category or adjust your CV content.")
         else:
-            st.success(f"🎯 Found the top {len(jobs)} matching positions in {result_state['category']}!")
+            st.success(f"🎯 Found {len(initial_jobs)} initial positions in {result_state['category']}, filtered to top {len(filtered_jobs)} matches!")
             
             # Create tabs for different views
-            tab1, tab2 = st.tabs(["📊 Quick View", "📑 Detailed View"])
+            tab1, tab2, tab3 = st.tabs(["📊 Quick View (Top 3)", "📑 Detailed View (Top 3)", "🔍 Initial Results (Top 10)"])
             
             with tab1:
-                # Compact view with key information
-                for i, job in enumerate(jobs, 1):
+                # Compact view with key information for filtered jobs
+                for i, job in enumerate(filtered_jobs, 1):
                     with st.container():
                         col1, col2 = st.columns([3, 1])
                         with col1:
@@ -391,13 +392,27 @@ if go and anthropic_key:
                     st.divider()
             
             with tab2:
-                # Detailed view with full descriptions
-                for i, job in enumerate(jobs, 1):
+                # Detailed view with full descriptions for filtered jobs
+                for i, job in enumerate(filtered_jobs, 1):
                     with st.expander(f"{i}. {job['title']} at {job['company_name']}"):
                         st.markdown("### Job Details")
                         st.markdown(f"**Location:** {job['candidate_required_location']}")
                         st.markdown(f"**Job Type:** {job.get('job_type', 'Not specified')}")
                         st.markdown(f"**Match Score:** {int(job.get('match_score', 0.5) * 100)}%")
+                        
+                        st.markdown("### Full Description")
+                        st.markdown(job["description"])
+                        
+                        st.link_button("Apply for this Position", job['url'], use_container_width=True)
+
+            with tab3:
+                # Show all initial jobs before filtering
+                st.info("These are all jobs found in the selected category before filtering by similarity")
+                for i, job in enumerate(initial_jobs, 1):
+                    with st.expander(f"{i}. {job['title']} at {job['company_name']}"):
+                        st.markdown("### Job Details")
+                        st.markdown(f"**Location:** {job['candidate_required_location']}")
+                        st.markdown(f"**Job Type:** {job.get('job_type', 'Not specified')}")
                         
                         st.markdown("### Full Description")
                         st.markdown(job["description"])
