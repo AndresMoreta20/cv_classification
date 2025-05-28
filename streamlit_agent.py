@@ -1,7 +1,7 @@
 import io
 import streamlit as st
 import requests
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from anthropic import Anthropic
 from langgraph.graph import StateGraph
 from pydantic import BaseModel
@@ -125,8 +125,11 @@ def embed_jobs(state):
     if not openai_key:
         state.embeddings = [None]*len(jobs)
     else:
-        embedder = OpenAIEmbeddings(openai_api_key=openai_key)
-        state.embeddings = embedder.embed_documents([j["description"][:2000] for j in jobs])
+        from langchain_openai import OpenAIEmbeddings
+        import os
+        os.environ["OPENAI_API_KEY"] = openai_key
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+        state.embeddings = embeddings.embed_documents([j["description"][:2000] for j in jobs])
     return state
 
 def analyze_style(state):
